@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Naam Verification</title>
+<style>
+    body { margin:0; padding:0; font-family:sans-serif; background:#ffe0e0; height:100vh; display:flex; flex-direction:column; align-items:center; justify-content:center;}
+    .box { background:white; padding:35px 28px; border-radius:16px; box-shadow:0 0 18px #d0d0d0; text-align:center;}
+    h2 { color:#f04070;}
+    input[type="text"] { font-size:22px; padding:8px 16px; border-radius:8px; border:1px solid #ccc; outline:none; margin:18px 0;}
+    button { font-size:18px; background:#f04070; color:white; border:none; border-radius:8px; padding:10px 24px; cursor:pointer;}
+    button:disabled { background:#ccc; cursor:not-allowed;}
+    .error { color:#e04040; font-size:15px; margin-top:8px; display:none;}
+</style>
+</head>
+<body>
+<div class="box">
+    <h2>Naam Verification</h2>
+    <input type="text" id="nameInput" placeholder="Apna naam likhein..." autocomplete="off" />
+    <br>
+    <button id="proceedBtn" disabled>Proceed</button>
+    <div class="error" id="errorMsg">Galat naam! Sirf “suhel” allowed hai.</div>
+</div>
+<script>
+const input = document.getElementById('nameInput');
+const btn = document.getElementById('proceedBtn');
+const error = document.getElementById('errorMsg');
+
+input.addEventListener('input', function() {
+    if (input.value.trim().toLowerCase() === 'suhel') {
+        btn.disabled = false;
+        error.style.display = 'none';
+    } else {
+        btn.disabled = true;
+        if (input.value.trim().length > 0) error.style.display = 'block';
+        else error.style.display = 'none';
+    }
+});
+
+btn.addEventListener('click', function() {
+    // Redirect to scratch card
+    window.location.href = "index.html";
+});
+</script>
+</body>
+</html>
