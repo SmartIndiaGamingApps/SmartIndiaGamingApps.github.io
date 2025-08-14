@@ -24,61 +24,101 @@
         border-radius: 15px;
         box-shadow: 0 0 15px rgba(0,0,0,0.2);
         cursor: pointer;
+        margin-bottom: 20px;
+    }
+    #message {
+        font-size: 22px;
+        color: #ff4081;
+        font-weight: bold;
+        opacity: 0;
+        transition: opacity 1s;
+        background: #fff8;
+        padding: 12px 24px;
+        border-radius: 10px;
+        user-select: text;
+    }
+    #locked {
+        font-size: 18px;
+        color: #333;
+        background: #ffe0e0;
+        padding: 10px 20px;
+        border-radius: 10px;
+        box-shadow: 0 0 5px #c0c0c0;
+        margin-top: 10px;
+        display: none;
     }
 </style>
 </head>
 <body>
 <h1>Scratch to Reveal 🎁</h1>
-<canvas id="scratchCanvas" width="300" height="200"></canvas>
+<canvas id="scratchCanvas" width="320" height="180"></canvas>
+<div id="message">🎉 Surprise! Tum bahut special ho! 🎁</div>
+<div id="locked">Scratch will unlock on <b>17 September 2025</b></div>
 <script>
+const scratchDate = new Date('2025-09-17T00:00:00');
+const now = new Date();
 const canvas = document.getElementById('scratchCanvas');
 const ctx = canvas.getContext('2d');
+const messageDiv = document.getElementById('message');
+const lockedDiv = document.getElementById('locked');
 
-// Draw gray overlay
-ctx.fillStyle = '#c0c0c0';
-ctx.fillRect(0, 0, canvas.width, canvas.height);
-ctx.font = '20px Arial';
-ctx.fillStyle = 'black';
-ctx.textAlign = 'center';
-ctx.fillText('Scratch Here!', canvas.width/2, canvas.height/2);
+// If before schedule, lock scratch
+if (now < scratchDate) {
+    canvas.style.opacity = 0.4;
+    canvas.style.pointerEvents = 'none';
+    lockedDiv.style.display = 'block';
+    messageDiv.style.opacity = 0;
+} else {
+    lockedDiv.style.display = 'none';
+    canvas.style.pointerEvents = 'auto';
+    ctx.fillStyle = '#c0c0c0';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.font = '20px Arial';
+    ctx.fillStyle = 'black';
+    ctx.textAlign = 'center';
+    ctx.fillText('Scratch Here!', canvas.width/2, canvas.height/2);
 
-// Message
-const message = "🎉 Surprise! Tum bahut special ho! 🎁";
+    let revealed = 0;
+    let totalArea = canvas.width * canvas.height;
+    let isDrawing = false;
 
-// Draw the hidden message underneath
-const hiddenCanvas = document.createElement('canvas');
-hiddenCanvas.width = canvas.width;
-hiddenCanvas.height = canvas.height;
-const hiddenCtx = hiddenCanvas.getContext('2d');
-hiddenCtx.fillStyle = '#fff';
-hiddenCtx.fillRect(0, 0, hiddenCanvas.width, hiddenCanvas.height);
-hiddenCtx.fillStyle = '#ff4081';
-hiddenCtx.font = '20px Arial';
-hiddenCtx.textAlign = 'center';
-hiddenCtx.fillText(message, hiddenCanvas.width / 2, hiddenCanvas.height / 2);
+    function scratch(e) {
+        if (!isDrawing) return;
+        e.preventDefault();
+        const rect = canvas.getBoundingClientRect();
+        const x = ((e.touches ? e.touches[0].clientX : e.clientX) - rect.left);
+        const y = ((e.touches ? e.touches[0].clientY : e.clientY) - rect.top);
 
-// Scratch logic
-let isDrawing = false;
-canvas.addEventListener('mousedown', () => isDrawing = true);
-canvas.addEventListener('mouseup', () => isDrawing = false);
-canvas.addEventListener('mousemove', scratch);
-canvas.addEventListener('touchstart', () => isDrawing = true);
-canvas.addEventListener('touchend', () => isDrawing = false);
-canvas.addEventListener('touchmove', scratch);
+        ctx.globalCompositeOperation = 'destination-out';
+        ctx.beginPath();
+        ctx.arc(x, y, 16, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.globalCompositeOperation = 'source-over';
 
-function scratch(e) {
-    if (!isDrawing) return;
-    e.preventDefault();
-    const rect = canvas.getBoundingClientRect();
-    const x = (e.clientX || e.touches[0].clientX) - rect.left;
-    const y = (e.clientY || e.touches[0].clientY) - rect.top;
-    ctx.globalCompositeOperation = 'destination-out';
-    ctx.beginPath();
-    ctx.arc(x, y, 15, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.globalCompositeOperation = 'source-over';
-    // Show hidden text behind
-    ctx.drawImage(hiddenCanvas, 0, 0);
+        // Calculate revealed area
+        let imgData = ctx.getImageData(0,0,canvas.width,canvas.height);
+        let cleared = 0;
+        for(let i=0; i<imgData.data.length; i+=4){
+            if(imgData.data[i+3] === 0) cleared++;
+        }
+        revealed = cleared / (canvas.width * canvas.height) * 100;
+        // Gradually show message
+        messageDiv.style.opacity = Math.min(1, revealed/40);
+        // If 40% scratched, show full message
+        if(revealed > 40){
+            messageDiv.style.opacity = 1;
+            canvas.style.opacity = 0.3;
+        }
+    }
+
+    canvas.addEventListener('mousedown', () => isDrawing = true);
+    canvas.addEventListener('mouseup', () => isDrawing = false);
+    canvas.addEventListener('mouseleave', () => isDrawing = false);
+    canvas.addEventListener('mousemove', scratch);
+    canvas.addEventListener('touchstart', () => isDrawing = true);
+    canvas.addEventListener('touchend', () => isDrawing = false);
+    canvas.addEventListener('touchcancel', () => isDrawing = false);
+    canvas.addEventListener('touchmove', scratch);
 }
 </script>
 </body>
