@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Scratch Card Surprise</title>
+<style>
+    body {
+        margin: 0;
+        padding: 0;
+        font-family: Arial, sans-serif;
+        background: linear-gradient(135deg, #ff9a9e, #fad0c4);
+        height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        flex-direction: column;
+    }
+    h1 {
+        color: white;
+        text-shadow: 2px 2px rgba(0,0,0,0.3);
+    }
+    #scratchCanvas {
+        border-radius: 15px;
+        box-shadow: 0 0 15px rgba(0,0,0,0.2);
+        cursor: pointer;
+    }
+</style>
+</head>
+<body>
+<h1>Scratch to Reveal 🎁</h1>
+<canvas id="scratchCanvas" width="300" height="200"></canvas>
+<script>
+const canvas = document.getElementById('scratchCanvas');
+const ctx = canvas.getContext('2d');
+
+// Draw gray overlay
+ctx.fillStyle = '#c0c0c0';
+ctx.fillRect(0, 0, canvas.width, canvas.height);
+ctx.font = '20px Arial';
+ctx.fillStyle = 'black';
+ctx.textAlign = 'center';
+ctx.fillText('Scratch Here!', canvas.width/2, canvas.height/2);
+
+// Message
+const message = "🎉 Surprise! Tum bahut special ho! 🎁";
+
+// Draw the hidden message underneath
+const hiddenCanvas = document.createElement('canvas');
+hiddenCanvas.width = canvas.width;
+hiddenCanvas.height = canvas.height;
+const hiddenCtx = hiddenCanvas.getContext('2d');
+hiddenCtx.fillStyle = '#fff';
+hiddenCtx.fillRect(0, 0, hiddenCanvas.width, hiddenCanvas.height);
+hiddenCtx.fillStyle = '#ff4081';
+hiddenCtx.font = '20px Arial';
+hiddenCtx.textAlign = 'center';
+hiddenCtx.fillText(message, hiddenCanvas.width / 2, hiddenCanvas.height / 2);
+
+// Scratch logic
+let isDrawing = false;
+canvas.addEventListener('mousedown', () => isDrawing = true);
+canvas.addEventListener('mouseup', () => isDrawing = false);
+canvas.addEventListener('mousemove', scratch);
+canvas.addEventListener('touchstart', () => isDrawing = true);
+canvas.addEventListener('touchend', () => isDrawing = false);
+canvas.addEventListener('touchmove', scratch);
+
+function scratch(e) {
+    if (!isDrawing) return;
+    e.preventDefault();
+    const rect = canvas.getBoundingClientRect();
+    const x = (e.clientX || e.touches[0].clientX) - rect.left;
+    const y = (e.clientY || e.touches[0].clientY) - rect.top;
+    ctx.globalCompositeOperation = 'destination-out';
+    ctx.beginPath();
+    ctx.arc(x, y, 15, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.globalCompositeOperation = 'source-over';
+    // Show hidden text behind
+    ctx.drawImage(hiddenCanvas, 0, 0);
+}
+</script>
+</body>
+</html>
