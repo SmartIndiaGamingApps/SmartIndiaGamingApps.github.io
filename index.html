@@ -48,27 +48,6 @@
         margin-top: 10px;
         display: none;
     }
-        /* Motivational + Dosti Text */
-    #friendshipText {
-        position: fixed;
-        bottom: 15px;
-        left: 50%;
-        transform: translateX(-50%);
-        background: rgba(255,255,255,0.8);
-        color: #ff4081;
-        padding: 10px 20px;
-        border-radius: 20px;
-        font-size: 16px;
-        font-weight: bold;
-        text-align: center;
-        box-shadow: 0 0 10px rgba(0,0,0,0.2);
-        animation: fadeIn 2s ease-in-out;
-    }
-    @keyframes fadeIn {
-        from { opacity: 0; transform: translate(-50%, 20px); }
-        to { opacity: 1; transform: translate(-50%, 0); }
-    }
-    
     /* Birthday Popup */
     #birthdayPopup {
         position: fixed;
@@ -98,6 +77,26 @@
         pointer-events: none;
         z-index: 999;
     }
+    /* Motivational + Dosti Text */
+    #friendshipText {
+        position: fixed;
+        bottom: 15px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: rgba(255,255,255,0.8);
+        color: #ff4081;
+        padding: 10px 20px;
+        border-radius: 20px;
+        font-size: 16px;
+        font-weight: bold;
+        text-align: center;
+        box-shadow: 0 0 10px rgba(0,0,0,0.2);
+        animation: fadeIn 2s ease-in-out;
+    }
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translate(-50%, 20px); }
+        to { opacity: 1; transform: translate(-50%, 0); }
+    }
 </style>
 </head>
 <body>
@@ -106,8 +105,8 @@
 <div id="message">🎉 Surprise! Tum bahut special ho! 🎁</div>
 <div id="locked">Scratch will unlock on <b>17 September 2025</b></div>
 <div id="birthdayPopup">🎂 Happy Birthday Bro! 🎉</div>
-<div id="friendshipText"🤝 Dosti wo nahi jo sirf khushi me saath ho… Dosti wo hai jo andhere me bhi tere liye roshni ban jaye! Aur tu… meri life ka sabse bright star hai 🚀💖</div>
 <canvas id="confettiCanvas"></canvas>
+<div id="friendshipText">💖 Dost wahi jo mushkil me saath ho, aur tu toh meri zindagi ka best dost hai! 🚀</div>
 
 <script>
 // Confetti setup
@@ -173,7 +172,7 @@ function showPopup(text) {
     setTimeout(() => popup.classList.remove('show'), 5000);
 }
 
-// === Celebration on Page Load ===
+// Celebration on Page Load
 window.onload = () => {
     animateConfetti();
     setTimeout(() => showPopup("🎂 Happy Birthday Bro! 🎉"), 500);
@@ -244,4 +243,5 @@ if (now < scratchDate) {
 }
 </script>
 </body>
-</html>
+    </html>
+    
