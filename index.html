@@ -15,6 +15,7 @@
         justify-content: center;
         align-items: center;
         flex-direction: column;
+        overflow: hidden;
     }
     h1 {
         color: white;
@@ -47,6 +48,35 @@
         margin-top: 10px;
         display: none;
     }
+    /* Birthday Popup */
+    #birthdayPopup {
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%) scale(0.5);
+        background: white;
+        color: #ff4081;
+        font-size: 28px;
+        font-weight: bold;
+        padding: 20px 40px;
+        border-radius: 15px;
+        box-shadow: 0 0 20px rgba(0,0,0,0.3);
+        opacity: 0;
+        text-align: center;
+        z-index: 1000;
+        transition: all 0.5s ease;
+    }
+    #birthdayPopup.show {
+        opacity: 1;
+        transform: translate(-50%, -50%) scale(1);
+    }
+    #confettiCanvas {
+        position: fixed;
+        top: 0;
+        left: 0;
+        pointer-events: none;
+        z-index: 999;
+    }
 </style>
 </head>
 <body>
@@ -54,23 +84,93 @@
 <canvas id="scratchCanvas" width="320" height="180"></canvas>
 <div id="message">🎉 Surprise! Tum bahut special ho! 🎁</div>
 <div id="locked">Scratch will unlock on <b>17 September 2025</b></div>
+<div id="birthdayPopup">🎂 Happy Birthday Bro! 🎉</div>
+<canvas id="confettiCanvas"></canvas>
+
 <script>
+// Confetti setup
+const confettiCanvas = document.getElementById('confettiCanvas');
+const confettiCtx = confettiCanvas.getContext('2d');
+confettiCanvas.width = window.innerWidth;
+confettiCanvas.height = window.innerHeight;
+
+let confettiPieces = [];
+
+function createConfetti() {
+    confettiPieces = [];
+    for (let i = 0; i < 150; i++) {
+        confettiPieces.push({
+            x: Math.random() * confettiCanvas.width,
+            y: Math.random() * confettiCanvas.height - confettiCanvas.height,
+            r: Math.random() * 6 + 4,
+            d: Math.random() * 150 + 50,
+            color: `hsl(${Math.random() * 360}, 100%, 50%)`,
+            tilt: Math.random() * 10 - 10
+        });
+    }
+}
+function drawConfetti() {
+    confettiCtx.clearRect(0, 0, confettiCanvas.width, confettiCanvas.height);
+    confettiPieces.forEach(p => {
+        confettiCtx.beginPath();
+        confettiCtx.arc(p.x, p.y, p.r, 0, Math.PI * 2, false);
+        confettiCtx.fillStyle = p.color;
+        confettiCtx.fill();
+    });
+    updateConfetti();
+}
+function updateConfetti() {
+    confettiPieces.forEach(p => {
+        p.y += Math.cos(p.d) + 1 + p.r / 2;
+        p.x += Math.sin(p.d);
+        if (p.y > confettiCanvas.height) {
+            p.x = Math.random() * confettiCanvas.width;
+            p.y = -10;
+        }
+    });
+}
+function animateConfetti(duration = 5000) {
+    createConfetti();
+    let startTime = Date.now();
+    function frame() {
+        drawConfetti();
+        if (Date.now() - startTime < duration) {
+            requestAnimationFrame(frame);
+        } else {
+            confettiCtx.clearRect(0, 0, confettiCanvas.width, confettiCanvas.height);
+        }
+    }
+    frame();
+}
+
+// Popup function
+function showPopup(text) {
+    const popup = document.getElementById('birthdayPopup');
+    popup.innerHTML = text;
+    popup.classList.add('show');
+    setTimeout(() => popup.classList.remove('show'), 5000);
+}
+
+// === Celebration on Page Load ===
+window.onload = () => {
+    animateConfetti();
+    setTimeout(() => showPopup("🎂 Happy Birthday Bro! 🎉"), 500);
+};
+
+// Scratch logic
 const scratchDate = new Date('2025-09-17T00:00:00');
 const now = new Date();
 const canvas = document.getElementById('scratchCanvas');
 const ctx = canvas.getContext('2d');
 const messageDiv = document.getElementById('message');
 const lockedDiv = document.getElementById('locked');
+let celebrationDone = false;
 
-// If before schedule, lock scratch
 if (now < scratchDate) {
     canvas.style.opacity = 0.4;
     canvas.style.pointerEvents = 'none';
     lockedDiv.style.display = 'block';
-    messageDiv.style.opacity = 0;
 } else {
-    lockedDiv.style.display = 'none';
-    canvas.style.pointerEvents = 'auto';
     ctx.fillStyle = '#c0c0c0';
     ctx.fillRect(0, 0, canvas.width, canvas.height);
     ctx.font = '20px Arial';
@@ -79,7 +179,6 @@ if (now < scratchDate) {
     ctx.fillText('Scratch Here!', canvas.width/2, canvas.height/2);
 
     let revealed = 0;
-    let totalArea = canvas.width * canvas.height;
     let isDrawing = false;
 
     function scratch(e) {
@@ -95,19 +194,20 @@ if (now < scratchDate) {
         ctx.fill();
         ctx.globalCompositeOperation = 'source-over';
 
-        // Calculate revealed area
         let imgData = ctx.getImageData(0,0,canvas.width,canvas.height);
         let cleared = 0;
         for(let i=0; i<imgData.data.length; i+=4){
             if(imgData.data[i+3] === 0) cleared++;
         }
         revealed = cleared / (canvas.width * canvas.height) * 100;
-        // Gradually show message
         messageDiv.style.opacity = Math.min(1, revealed/40);
-        // If 40% scratched, show full message
-        if(revealed > 40){
+
+        if(revealed > 40 && !celebrationDone){
+            celebrationDone = true;
             messageDiv.style.opacity = 1;
             canvas.style.opacity = 0.3;
+            animateConfetti();
+            showPopup("🎉 Surprise Reveal! 🎁");
         }
     }
 
