@@ -77,6 +77,19 @@
         pointer-events: none;
         z-index: 999;
     }
+    #shayari {
+    font-size: 16px;
+    font-weight: bold;
+    color: #ff4081;
+    text-align: center;
+    margin-top: 10px;
+    background: rgba(255,255,255,0.6);
+    padding: 8px 15px;
+    border-radius: 15px;
+    box-shadow: 0 0 5px rgba(0,0,0,0.2);
+    animation: fadeIn 2s ease-in-out;
+        }
+        
     /* Motivational + Dosti Text */
     #friendshipText {
         position: fixed;
@@ -104,10 +117,12 @@
 <canvas id="scratchCanvas" width="320" height="180"></canvas>
 <div id="message">🎉 Surprise! Tum bahut special ho! 🎁</div>
 <div id="locked">Scratch will unlock on <b>17 September 2025</b></div>
+<div id="shayari">
+    🌟 Dosti wo hai jo hamesha tere saath khadi rahe, khushi ho ya mushkil, tu meri zindagi ka sabse bright star hai! 💖
+</div>
 <div id="birthdayPopup">🎂 Happy Birthday Bro! 🎉</div>
 <canvas id="confettiCanvas"></canvas>
-<div id="friendshipText">💖 Dost wahi jo mushkil me saath ho, aur tu toh meri zindagi ka best dost hai! 🚀</div>
-
+    
 <script>
 // Confetti setup
 const confettiCanvas = document.getElementById('confettiCanvas');
